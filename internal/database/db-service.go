@@ -18,13 +18,14 @@ type User struct {
 	Meflvl         int       `db:"meflvl"`
 	Timelvl        int       `db:"timelvl"`
 	Farmtime       int       `db:"farmtime"`
+	CreatedAt      time.Time `db:"createdAt"`
+	UpdatedAt      time.Time `db:"updatedAt"`
 	Slots          int       `db:"slots"`
 	FullSlots      int       `db:"fullSlots"`
 	Gems           int       `db:"gems"`
 	TakeBonus      int       `db:"takeBonus"`
+	Event          int       `db:"event"`
 	Chests         int       `db:"chests"`
-	CreatedAt      time.Time `db:"createdAt"`
-	UpdatedAt      time.Time `db:"updatedAt"`
 }
 
 func GetAllUsers(db *sqlx.DB) []User {
