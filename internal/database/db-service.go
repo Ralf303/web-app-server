@@ -14,7 +14,7 @@ type User struct {
 	Username       string    `db:"username"`
 	FirstName      string    `db:"firstname"`
 	CaptureCounter int       `db:"captureCounter"`
-	Balance        int       `db:"balance"`
+	Balance        uint64    `db:"balance"`
 	Meflvl         int       `db:"meflvl"`
 	Timelvl        int       `db:"timelvl"`
 	Farmtime       int       `db:"farmtime"`
@@ -24,7 +24,6 @@ type User struct {
 	FullSlots      int       `db:"fullSlots"`
 	Gems           int       `db:"gems"`
 	TakeBonus      int       `db:"takeBonus"`
-	Event          int       `db:"event"`
 	Chests         int       `db:"chests"`
 }
 
@@ -61,7 +60,7 @@ func GetOrCreateUser(db *sqlx.DB, chatId string) (User, error) {
 	return user, nil
 }
 
-func UpdateUser(db *sqlx.DB, userId int, column string, value int) error {
+func UpdateUser(db *sqlx.DB, userId int, column string, value uint64) error {
 	_, err := db.Exec("UPDATE users SET "+column+" = ? WHERE id = ?", value, userId)
 	if err != nil {
 		fmt.Println("Ошибка при обновлении пользователя:", err)

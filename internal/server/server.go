@@ -62,7 +62,7 @@ func UpdateUserBalance(db *sqlx.DB, w http.ResponseWriter, r *http.Request) {
 	userId := chi.URLParam(r, "userId")
 
 	var request struct {
-		Balance int `json:"balance"`
+		Balance uint64 `json:"balance"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
@@ -83,7 +83,7 @@ func UpdateUserGems(db *sqlx.DB, w http.ResponseWriter, r *http.Request) {
 	userId := chi.URLParam(r, "userId")
 
 	var request struct {
-		Gems int `json:"gems"`
+		Gems uint64 `json:"gems"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
@@ -104,7 +104,7 @@ func UpdateUserKeys(db *sqlx.DB, w http.ResponseWriter, r *http.Request) {
 	userId := chi.URLParam(r, "userId")
 
 	var request struct {
-		Keys int `json:"keys"`
+		Keys uint64 `json:"keys"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {

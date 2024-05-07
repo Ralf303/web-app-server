@@ -5,7 +5,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func UpdatedBalance(db *sqlx.DB, chatId string, value int) error {
+func UpdatedBalance(db *sqlx.DB, chatId string, value uint64) error {
 	user, err := database.GetOrCreateUser(db, chatId)
 	if err != nil {
 		return err
@@ -17,7 +17,7 @@ func UpdatedBalance(db *sqlx.DB, chatId string, value int) error {
 	return nil
 }
 
-func UpdatedGems(db *sqlx.DB, chatId string, value int) error {
+func UpdatedGems(db *sqlx.DB, chatId string, value uint64) error {
 	user, err := database.GetOrCreateUser(db, chatId)
 	if err != nil {
 		return err
@@ -29,7 +29,7 @@ func UpdatedGems(db *sqlx.DB, chatId string, value int) error {
 	return nil
 }
 
-func UpdatedKeys(db *sqlx.DB, chatId string, value int) error {
+func UpdatedKeys(db *sqlx.DB, chatId string, value uint64) error {
 	user, err := database.GetOrCreateUser(db, chatId)
 	if err != nil {
 		return err
