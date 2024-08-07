@@ -27,6 +27,14 @@ func main() {
 	certPath := os.Getenv("CERT_PATH")
 	keyPath := os.Getenv("KEY_PATH")
 
+	if _, err := os.Stat(certPath); os.IsNotExist(err) {
+		log.Fatalf("Certificate file not found: %v", err)
+	}
+
+	if _, err := os.Stat(keyPath); os.IsNotExist(err) {
+		log.Fatalf("Key file not found: %v", err)
+	}
+
 	fmt.Println("Server is running on port 8080")
 	log.Fatal(http.ListenAndServeTLS(":8080", certPath, keyPath, router))
 }
