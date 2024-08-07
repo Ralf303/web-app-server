@@ -21,9 +21,9 @@ func Routes(db *sqlx.DB) *chi.Mux {
 		AllowedHeaders: []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 	}))
 
-	// router.Use(middleware.RequestID)
-	// router.Use(middleware.Logger)
-	// router.Use(middleware.Recoverer)
+	router.Use(middleware.RequestID)
+	router.Use(middleware.Logger)
+	router.Use(middleware.Recoverer)
 	router.Use(middleware.URLFormat)
 
 	router.Get("/user/get/{userId}", func(w http.ResponseWriter, r *http.Request) {

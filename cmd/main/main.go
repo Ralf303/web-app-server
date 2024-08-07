@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"example.com/myapp/internal/database"
 	"example.com/myapp/internal/server"
@@ -35,6 +36,6 @@ func main() {
 		log.Fatalf("Key file not found: %v", err)
 	}
 
-	fmt.Println("Server is running on port 8080")
+	fmt.Println("Server is running on port 8080 at", time.Now())
 	log.Fatal(http.ListenAndServeTLS(":8080", certPath, keyPath, router))
 }

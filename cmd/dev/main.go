@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"example.com/myapp/internal/database"
 	"example.com/myapp/internal/server"
@@ -23,6 +24,7 @@ func main() {
 	}
 	router := server.Routes(db)
 
-	fmt.Println("Server is running on port 8080")
+	fmt.Println("Server is running on port 8080 at", time.Now())
+
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
