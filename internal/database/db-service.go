@@ -47,11 +47,13 @@ func GetOrCreateUser(db *sqlx.DB, chatId string) (User, error) {
 				fmt.Println("Ошибка при создании нового пользователя:", err)
 				return User{}, err
 			}
+
 			err = db.Get(&user, "SELECT * FROM users WHERE chatId = ?", chatId)
 			if err != nil {
 				fmt.Println("Ошибка при получении информации о новом пользователе:", err)
 				return User{}, err
 			}
+
 		} else {
 			fmt.Println("Ошибка при поиске пользователя:", err)
 			return User{}, err

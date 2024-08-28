@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"time"
 
 	"example.com/myapp/internal/database"
@@ -25,17 +24,7 @@ func main() {
 	}
 	router := server.Routes(db)
 
-	certPath := os.Getenv("CERT_PATH")
-	keyPath := os.Getenv("KEY_PATH")
-
-	if _, err := os.Stat(certPath); os.IsNotExist(err) {
-		log.Fatalf("Certificate file not found: %v", err)
-	}
-
-	if _, err := os.Stat(keyPath); os.IsNotExist(err) {
-		log.Fatalf("Key file not found: %v", err)
-	}
-
 	fmt.Println("Server is running on port 8080 at", time.Now())
-	log.Fatal(http.ListenAndServeTLS(":8080", certPath, keyPath, router))
+
+	log.Fatal(http.ListenAndServe(":8080", router))
 }

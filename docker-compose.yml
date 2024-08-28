@@ -6,5 +6,3 @@ services:
       - .env.prod
     ports:
       - "8080:8080"
-    volumes:
-      - ./certs:/etc/letsencrypt/archive/mefadmin.ru
