@@ -25,6 +25,8 @@ type User struct {
 	Gems           int       `db:"gems"`
 	TakeBonus      int       `db:"takeBonus"`
 	Chests         int       `db:"chests"`
+	FamMoney       int       `db:"famMoney"`
+	Stones         int       `db:"stones"`
 }
 
 func GetAllUsers(db *sqlx.DB) []User {
