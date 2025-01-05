@@ -8,7 +8,6 @@ import (
 
 	"example.com/myapp/internal/database"
 	"example.com/myapp/internal/server"
-
 	"github.com/joho/godotenv"
 )
 
