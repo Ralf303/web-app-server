@@ -28,6 +28,10 @@ type User struct {
 	FamMoney       int       `db:"famMoney"`
 	Stones         int       `db:"stones"`
 	Snows          int       `db:"snows"`
+	Freeze         int       `db:"freeze"`
+	Oil            int       `db:"oil"`
+	Donate         int       `db:"donate"`
+	Coin           int       `db:"coin"`
 }
 
 func GetAllUsers(db *sqlx.DB) []User {
