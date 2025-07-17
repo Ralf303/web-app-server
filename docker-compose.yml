@@ -1,4 +1,5 @@
 version: '3.0'
+
 services:
   web:
     build: .
@@ -6,3 +7,4 @@ services:
       - .env.prod
     ports:
       - "8000:8000"
+    restart: always
