@@ -24,6 +24,6 @@ func main() {
 
 	router := server.Routes(db)
 
-	fmt.Println("Server running on :8080 at", time.Now().Format(time.RFC3339))
-	log.Fatal(http.ListenAndServe(":8080", router))
+	fmt.Println("Server running on :8000 at", time.Now().Format(time.RFC3339))
+	log.Fatal(http.ListenAndServe(":8000", router))
 }
