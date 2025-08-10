@@ -12,18 +12,18 @@ import (
 )
 
 func main() {
-	err := godotenv.Load(".env.prod")
-	if err != nil {
+	if err := godotenv.Load(".env"); err != nil {
 		log.Fatal("Error loading .env file")
 	}
 
-	db, err := database.Connect()
+	db, err := database.ConnectFromEnv()
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer db.Close()
+
 	router := server.Routes(db)
 
-	fmt.Println("Server is running on port 8000 at", time.Now())
-
-	log.Fatal(http.ListenAndServe(":8000", router))
+	fmt.Println("Server running on :8080 at", time.Now().Format(time.RFC3339))
+	log.Fatal(http.ListenAndServe(":8080", router))
 }

@@ -2,7 +2,6 @@ package database
 
 import (
 	"database/sql"
-	"fmt"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -34,46 +33,35 @@ type User struct {
 	Coin           int       `db:"coin"`
 }
 
-func GetAllUsers(db *sqlx.DB) []User {
-	users := []User{}
-	err := db.Select(&users, "SELECT * FROM users")
-	if err != nil {
-		fmt.Println(err)
-	}
-	return users
-}
-
 func GetOrCreateUser(db *sqlx.DB, chatId string) (User, error) {
 	var user User
 	err := db.Get(&user, "SELECT * FROM users WHERE chatId = ?", chatId)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			// Создаем нового пользователя
-			_, err := db.Exec("INSERT INTO users (chatId, createdAt, updatedAt) VALUES (?, datetime('now'), datetime('now'))", chatId)
+			_, err := db.Exec(`INSERT INTO users (chatId, balance, gems, chests, createdAt, updatedAt) VALUES (?, 0, 0, 0, NOW(), NOW())`, chatId)
 			if err != nil {
-				fmt.Println("Ошибка при создании нового пользователя:", err)
-				return User{}, err
+				return user, err
 			}
-
 			err = db.Get(&user, "SELECT * FROM users WHERE chatId = ?", chatId)
 			if err != nil {
-				fmt.Println("Ошибка при получении информации о новом пользователе:", err)
-				return User{}, err
+				return user, err
 			}
-
-		} else {
-			fmt.Println("Ошибка при поиске пользователя:", err)
-			return User{}, err
 		}
 	}
-	return user, nil
+	return user, err
 }
 
-func UpdateUser(db *sqlx.DB, userId int, column string, value uint64) error {
-	_, err := db.Exec("UPDATE users SET "+column+" = ? WHERE id = ?", value, userId)
-	if err != nil {
-		fmt.Println("Ошибка при обновлении пользователя:", err)
-		return err
-	}
-	return nil
+func UpdateUserKeys(db *sqlx.DB, userId int, keys int) error {
+	_, err := db.Exec("UPDATE users SET chests = ?, updatedAt = NOW() WHERE id = ?", keys, userId)
+	return err
+}
+
+func UpdateUserBalance(db *sqlx.DB, userId int, balance uint64) error {
+	_, err := db.Exec("UPDATE users SET balance = ?, updatedAt = NOW() WHERE id = ?", balance, userId)
+	return err
+}
+
+func UpdateUserGems(db *sqlx.DB, userId int, gems int) error {
+	_, err := db.Exec("UPDATE users SET gems = ?, updatedAt = NOW() WHERE id = ?", gems, userId)
+	return err
 }
