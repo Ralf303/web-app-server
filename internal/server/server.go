@@ -21,6 +21,11 @@ func Routes(db *sqlx.DB) *chi.Mux {
 
 	r.Get("/user/{chatId}", handlers.GetUserHandler(db))
 	r.Post("/case/open/{chatId}", handlers.OpenCaseHandler(db))
+	r.Get("/mining/getSlots/{userId}", handlers.GetSlotsHandler(db))
+	r.Get("/mining/getGpu/{userId}", handlers.GetGpuHandler(db))
+	r.Get("/mining/getGpuById/{gpuId}", handlers.GetGpuByIdHandler(db))
+	r.Post("/mining/installGpu", handlers.InstallGpuHandler(db))
+	r.Post("/mining/buySlot/{userId}", handlers.BuySlotHandler(db))
 
 	return r
 }

@@ -20,7 +20,7 @@ type CaseOpenResponse struct {
 func OpenCaseHandler(db *sqlx.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		chatId := chi.URLParam(r, "chatId")
-		user, err := database.GetOrCreateUser(db, chatId)
+		user, err := database.GetUser(db, chatId)
 		if err != nil {
 			http.Error(w, "User not found", http.StatusNotFound)
 			return

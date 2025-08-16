@@ -33,22 +33,16 @@ type User struct {
 	Coin           int       `db:"coin"`
 }
 
-func GetOrCreateUser(db *sqlx.DB, chatId string) (User, error) {
+func GetUser(db *sqlx.DB, chatId string) (User, error) {
 	var user User
 	err := db.Get(&user, "SELECT * FROM users WHERE chatId = ?", chatId)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			_, err := db.Exec(`INSERT INTO users (chatId, balance, gems, chests, createdAt, updatedAt) VALUES (?, 0, 0, 0, NOW(), NOW())`, chatId)
-			if err != nil {
-				return user, err
-			}
-			err = db.Get(&user, "SELECT * FROM users WHERE chatId = ?", chatId)
-			if err != nil {
-				return user, err
-			}
+			return User{}, nil
 		}
+		return User{}, err
 	}
-	return user, err
+	return user, nil
 }
 
 func UpdateUserKeys(db *sqlx.DB, userId int, keys int) error {
@@ -63,5 +57,10 @@ func UpdateUserBalance(db *sqlx.DB, userId int, balance uint64) error {
 
 func UpdateUserGems(db *sqlx.DB, userId int, gems int) error {
 	_, err := db.Exec("UPDATE users SET gems = ?, updatedAt = NOW() WHERE id = ?", gems, userId)
+	return err
+}
+
+func UpdateUserCoins(db *sqlx.DB, userId int, coins int) error {
+	_, err := db.Exec("UPDATE users SET coin = ?, updatedAt = NOW() WHERE id = ?", coins, userId)
 	return err
 }
