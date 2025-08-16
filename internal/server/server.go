@@ -20,12 +20,15 @@ func Routes(db *sqlx.DB) *chi.Mux {
 	r.Use(middleware.Recoverer)
 
 	r.Get("/user/{chatId}", handlers.GetUserHandler(db))
-	r.Post("/case/open/{chatId}", handlers.OpenCaseHandler(db))
+	r.Get("/mining/withdrowBitcoin/{cardId}/{userId}", handlers.WithdrawBitcoinHandler(db))
 	r.Get("/mining/getSlots/{userId}", handlers.GetSlotsHandler(db))
 	r.Get("/mining/getGpu/{userId}", handlers.GetGpuHandler(db))
 	r.Get("/mining/getGpuById/{gpuId}", handlers.GetGpuByIdHandler(db))
+	r.Get("/mining/pullGpu/{gpuId}/{userId}", handlers.PullGpuHandler(db))
+	r.Post("/case/open/{chatId}", handlers.OpenCaseHandler(db))
 	r.Post("/mining/installGpu", handlers.InstallGpuHandler(db))
 	r.Post("/mining/buySlot/{userId}", handlers.BuySlotHandler(db))
+	r.Post("/mining/freezeGpu", handlers.FreezeGpuHandler(db))
 
 	return r
 }

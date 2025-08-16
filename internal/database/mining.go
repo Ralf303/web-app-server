@@ -111,6 +111,12 @@ func GetCardStandById(db *sqlx.DB, standId int) (CardStand, error) {
 	return stand, err
 }
 
+func GetStandByCardId(db *sqlx.DB, cardId int) (CardStand, error) {
+	var stand CardStand
+	err := db.Get(&stand, "SELECT * FROM cardStands WHERE cardId = ?", cardId)
+	return stand, err
+}
+
 func ResetCardBalance(db *sqlx.DB, id int) error {
 	_, err := db.Exec("UPDATE cards SET balance = 0, updatedAt = NOW() WHERE id = ?", id)
 	return err

@@ -26,6 +26,11 @@ type BuyGpuSlotRequest struct {
 	Slot   database.CardStand `json:"slot"`
 }
 
+type FreezeGpuRequest struct {
+	UserId string `json:"userId"`
+	CardId int    `json:"cardId"`
+}
+
 func GetSlotsHandler(db *sqlx.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		userIdStr := chi.URLParam(r, "userId")
@@ -207,6 +212,182 @@ func BuySlotHandler(db *sqlx.DB) http.HandlerFunc {
 		response := BuyGpuSlotRequest{
 			Status: "success",
 			Slot:   stand,
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(response)
+	}
+}
+
+func FreezeGpuHandler(db *sqlx.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req FreezeGpuRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			http.Error(w, "Invalid request body", http.StatusBadRequest)
+			return
+		}
+
+		user, err := database.GetUser(db, req.UserId)
+		if err != nil {
+			http.Error(w, "User not found", http.StatusNotFound)
+			return
+		}
+
+		if user.Freeze <= 0 {
+			http.Error(w, "dontFreeze", http.StatusBadRequest)
+			return
+		}
+
+		card, err := database.GetCardById(db, req.CardId)
+		if err != nil {
+			http.Error(w, "GPU not found", http.StatusNotFound)
+			return
+		}
+
+		if card.UserId != user.Id {
+			http.Error(w, "dontHave", http.StatusForbidden)
+			return
+		}
+
+		if card.Fuel >= 100 {
+			http.Error(w, "alreadyFull", http.StatusBadRequest)
+			return
+		}
+
+		newFuel := min(card.Fuel+50, 100)
+
+		if err := database.UpdateCardFuel(db, card.Id, newFuel); err != nil {
+			http.Error(w, "Failed to update GPU fuel", http.StatusInternalServerError)
+			return
+		}
+
+		if err := database.DecrementUserFreeze(db, user.Id); err != nil {
+			http.Error(w, "Failed to update user freeze", http.StatusInternalServerError)
+			return
+		}
+
+		response := map[string]interface{}{
+			"status": "success",
+			"card": map[string]interface{}{
+				"id":     card.Id,
+				"fuel":   newFuel,
+				"userId": card.UserId,
+			},
+			"user": map[string]interface{}{
+				"id":     user.Id,
+				"freeze": user.Freeze - 1,
+			},
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(response)
+	}
+}
+
+func WithdrawBitcoinHandler(db *sqlx.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		cardIdStr := chi.URLParam(r, "cardId")
+		userIdStr := chi.URLParam(r, "userId")
+
+		cardId, err := strconv.Atoi(cardIdStr)
+		if err != nil {
+			http.Error(w, "Invalid cardId", http.StatusBadRequest)
+			return
+		}
+
+		user, err := database.GetUser(db, userIdStr)
+		if err != nil {
+			http.Error(w, "User not found", http.StatusNotFound)
+			return
+		}
+
+		card, err := database.GetCardById(db, cardId)
+		if err != nil {
+			http.Error(w, "Card not found", http.StatusNotFound)
+			return
+		}
+
+		if card.UserId != user.Id {
+			http.Error(w, "dontHave", http.StatusForbidden)
+			return
+		}
+
+		cardBalance := card.Balance
+		if cardBalance <= 0 {
+			http.Error(w, "noBalance", http.StatusBadRequest)
+			return
+		}
+
+		if err := database.ResetCardBalance(db, card.Id); err != nil {
+			http.Error(w, "Failed to reset card balance", http.StatusInternalServerError)
+			return
+		}
+
+		newUserCoins := user.Coin + cardBalance
+		if err := database.UpdateUserCoins(db, user.Id, newUserCoins); err != nil {
+			http.Error(w, "Failed to update user balance", http.StatusInternalServerError)
+			return
+		}
+
+		response := map[string]interface{}{
+			"status": "success",
+			"user": map[string]interface{}{
+				"id":   user.Id,
+				"coin": newUserCoins,
+			},
+			"card": map[string]interface{}{
+				"id":      card.Id,
+				"balance": 0,
+			},
+			"withdrawn": cardBalance,
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(response)
+	}
+}
+
+func PullGpuHandler(db *sqlx.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		gpuIdStr := chi.URLParam(r, "gpuId")
+		userId := chi.URLParam(r, "userId")
+
+		gpuId, err := strconv.Atoi(gpuIdStr)
+		if err != nil {
+			http.Error(w, "Invalid gpuId", http.StatusBadRequest)
+			return
+		}
+
+		user, err := database.GetUser(db, userId)
+		if err != nil {
+			http.Error(w, "User not found", http.StatusNotFound)
+			return
+		}
+
+		card, err := database.GetCardById(db, gpuId)
+		if err != nil {
+			http.Error(w, "Card not found", http.StatusNotFound)
+			return
+		}
+
+		if card.UserId != user.Id {
+			http.Error(w, "dontHave", http.StatusForbidden)
+			return
+		}
+
+		stand, err := database.GetStandByCardId(db, card.Id)
+		if err != nil {
+			http.Error(w, "wrongStand", http.StatusNotFound)
+			return
+		}
+
+		if err := database.RemoveCardFromStand(db, stand.Id); err != nil {
+			http.Error(w, "Failed to remove card from stand", http.StatusInternalServerError)
+			return
+		}
+
+		response := map[string]string{
+			"status": "success",
 		}
 
 		w.Header().Set("Content-Type", "application/json")

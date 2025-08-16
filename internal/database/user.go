@@ -64,3 +64,11 @@ func UpdateUserCoins(db *sqlx.DB, userId int, coins int) error {
 	_, err := db.Exec("UPDATE users SET coin = ?, updatedAt = NOW() WHERE id = ?", coins, userId)
 	return err
 }
+
+func DecrementUserFreeze(db *sqlx.DB, userId int) error {
+	_, err := db.Exec(`
+		UPDATE users 
+		SET freeze = freeze - 1, updatedAt = NOW() 
+		WHERE id = ? AND freeze > 0`, userId)
+	return err
+}
