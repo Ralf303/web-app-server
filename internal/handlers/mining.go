@@ -270,7 +270,7 @@ func FreezeGpuHandler(db *sqlx.DB) http.HandlerFunc {
 		}
 
 		if card.Fuel >= 100 {
-			http.Error(w, "alreadyFull", http.StatusBadRequest)
+			json.NewEncoder(w).Encode(map[string]string{"status": "alreadyFull"})
 			return
 		}
 
