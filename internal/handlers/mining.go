@@ -78,8 +78,25 @@ func GetGpuHandler(db *sqlx.DB) http.HandlerFunc {
 			return
 		}
 
+		if cards == nil {
+			cards = []database.Card{}
+		}
+
+		type CardWithIncome struct {
+			Card   database.Card `json:"card"`
+			Income int           `json:"income"`
+		}
+
+		var result []CardWithIncome
+		for _, c := range cards {
+			result = append(result, CardWithIncome{
+				Card:   c,
+				Income: c.Lvl + 10,
+			})
+		}
+
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(cards)
+		json.NewEncoder(w).Encode(result)
 	}
 }
 
@@ -123,7 +140,7 @@ func InstallGpuHandler(db *sqlx.DB) http.HandlerFunc {
 			return
 		}
 		if card.UserId != user.Id {
-			http.Error(w, "Card does not belong to user", http.StatusForbidden)
+			json.NewEncoder(w).Encode(map[string]string{"status": "dontHaveGpu"})
 			return
 		}
 
@@ -132,8 +149,9 @@ func InstallGpuHandler(db *sqlx.DB) http.HandlerFunc {
 			http.Error(w, "Stand not found", http.StatusNotFound)
 			return
 		}
+
 		if stand.UserId != user.Id {
-			http.Error(w, "Stand does not belong to user", http.StatusForbidden)
+			json.NewEncoder(w).Encode(map[string]string{"status": "dontHaveStand"})
 			return
 		}
 
@@ -142,13 +160,14 @@ func InstallGpuHandler(db *sqlx.DB) http.HandlerFunc {
 			http.Error(w, "Database error", http.StatusInternalServerError)
 			return
 		}
+
 		if installedElsewhere {
-			http.Error(w, "Card is already installed in another stand", http.StatusConflict)
+			json.NewEncoder(w).Encode(map[string]string{"status": "alreadyInstalledElsewhere"})
 			return
 		}
 
 		if stand.CardId != nil {
-			http.Error(w, "Stand already has a card", http.StatusConflict)
+			json.NewEncoder(w).Encode(map[string]string{"status": "alreadyInstalled"})
 			return
 		}
 
@@ -185,14 +204,15 @@ func BuySlotHandler(db *sqlx.DB) http.HandlerFunc {
 			http.Error(w, "Failed to get slots", http.StatusInternalServerError)
 			return
 		}
+
 		if len(stands) >= 9 {
-			http.Error(w, "maxSlots", http.StatusBadRequest)
+			json.NewEncoder(w).Encode(map[string]string{"status": "maxSlots"})
 			return
 		}
 
 		const slotPrice = 2500000
 		if user.Balance < uint64(slotPrice) {
-			http.Error(w, "dontMoney", http.StatusBadRequest)
+			json.NewEncoder(w).Encode(map[string]string{"status": "noBalance"})
 			return
 		}
 
@@ -245,7 +265,7 @@ func FreezeGpuHandler(db *sqlx.DB) http.HandlerFunc {
 		}
 
 		if card.UserId != user.Id {
-			http.Error(w, "dontHave", http.StatusForbidden)
+			json.NewEncoder(w).Encode(map[string]string{"status": "dontHaveGpu"})
 			return
 		}
 
@@ -308,13 +328,13 @@ func WithdrawBitcoinHandler(db *sqlx.DB) http.HandlerFunc {
 		}
 
 		if card.UserId != user.Id {
-			http.Error(w, "dontHave", http.StatusForbidden)
+			json.NewEncoder(w).Encode(map[string]string{"status": "dontHave"})
 			return
 		}
 
 		cardBalance := card.Balance
 		if cardBalance <= 0 {
-			http.Error(w, "noBalance", http.StatusBadRequest)
+			json.NewEncoder(w).Encode(map[string]string{"status": "noBalance"})
 			return
 		}
 
@@ -371,13 +391,13 @@ func PullGpuHandler(db *sqlx.DB) http.HandlerFunc {
 		}
 
 		if card.UserId != user.Id {
-			http.Error(w, "dontHave", http.StatusForbidden)
+			json.NewEncoder(w).Encode(map[string]string{"status": "dontHaveGpu"})
 			return
 		}
 
 		stand, err := database.GetStandByCardId(db, card.Id)
 		if err != nil {
-			http.Error(w, "wrongStand", http.StatusNotFound)
+			json.NewEncoder(w).Encode(map[string]string{"status": "dontHaveStand"})
 			return
 		}
 
