@@ -12,7 +12,7 @@ type Card struct {
 	UserId  int       `db:"userId"`
 	Lvl     int       `db:"lvl"`
 	Fuel    int       `db:"fuel"`
-	Balance int       `db:"balance"`
+	Balance float32   `db:"balance"`
 	Created time.Time `db:"createdAt"`
 	Updated time.Time `db:"updatedAt"`
 }
@@ -37,7 +37,7 @@ type CardStandJoined struct {
 	Card_UserId    *int       `db:"card.userId"`
 	Card_Lvl       *int       `db:"card.lvl"`
 	Card_Fuel      *int       `db:"card.fuel"`
-	Card_Balance   *int       `db:"card.balance"`
+	Card_Balance   *float32   `db:"card.balance"`
 	Card_CreatedAt *time.Time `db:"card.createdAt"`
 	Card_UpdatedAt *time.Time `db:"card.updatedAt"`
 }
@@ -68,7 +68,7 @@ func GetUserCardStands(db *sqlx.DB, userId int) ([]CardStand, error) {
 	stands := make([]CardStand, 0, len(rows))
 	for _, r := range rows {
 		var card *Card
-		if r.Card_Id != nil { // создаём карту только если она есть
+		if r.Card_Id != nil {
 			card = &Card{
 				Id:      *r.Card_Id,
 				UserId:  *r.Card_UserId,

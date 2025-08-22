@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"math"
 	"net/http"
 	"strconv"
 
@@ -171,7 +172,8 @@ func InstallGpuHandler(db *sqlx.DB) http.HandlerFunc {
 			return
 		}
 
-		newCoins := user.Coin + card.Balance
+		newCoins := user.Coin + int(math.Floor(float64(card.Balance)))
+
 		if err := database.ResetCardBalance(db, card.Id); err != nil {
 			http.Error(w, "Failed to update card balance", http.StatusInternalServerError)
 			return
@@ -343,7 +345,7 @@ func WithdrawBitcoinHandler(db *sqlx.DB) http.HandlerFunc {
 			return
 		}
 
-		newUserCoins := user.Coin + cardBalance
+		newUserCoins := user.Coin + int(math.Floor(float64(cardBalance)))
 		if err := database.UpdateUserCoins(db, user.Id, newUserCoins); err != nil {
 			http.Error(w, "Failed to update user balance", http.StatusInternalServerError)
 			return
