@@ -85,14 +85,14 @@ func GetGpuHandler(db *sqlx.DB) http.HandlerFunc {
 
 		type CardWithIncome struct {
 			Card   database.Card `json:"card"`
-			Income int           `json:"income"`
+			Income float32       `json:"income"`
 		}
 
 		var result []CardWithIncome
 		for _, c := range cards {
 			result = append(result, CardWithIncome{
 				Card:   c,
-				Income: c.Lvl + 10,
+				Income: float32(c.Lvl) * 0.5,
 			})
 		}
 
