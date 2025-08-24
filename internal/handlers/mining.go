@@ -90,9 +90,13 @@ func GetGpuHandler(db *sqlx.DB) http.HandlerFunc {
 
 		var result []CardWithIncome
 		for _, c := range cards {
+			income := float32(c.Lvl) * 0.5
+			if c.Lvl == 0 {
+				income = 0.5
+			}
 			result = append(result, CardWithIncome{
 				Card:   c,
-				Income: float32(c.Lvl) * 0.5,
+				Income: income,
 			})
 		}
 
